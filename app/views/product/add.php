@@ -10,7 +10,7 @@
     </ul>
 </div>
 <?php endif; ?>
-<form method="POST" action="/websitebancaphe/Product/save" onsubmit="return validateForm();">
+<form method="POST" action="/websitebancaphe/Product/save" enctype="multipart/form-data" onsubmit="return validateForm();">
     <div class="form-group">
         <label for="name">Tên sản phẩm:</label>
         <input type="text" id="name" name="name" class="form-control" required>
@@ -31,6 +31,10 @@
                 <?php echo htmlspecialchars($category->name, ENT_QUOTES, 'UTF-8'); ?></option>
             <?php endforeach; ?>
         </select>
+    </div>
+    <div class="form-group">
+        <label for="image">Hình ảnh:</label>
+        <input type="file" id="image" name="image" class="form-control">
     </div>
     <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
 </form>
