@@ -201,7 +201,7 @@ class ProductController
 
             try {
                 // Lưu thông tin đơn hàng vào bảng orders
-                $query = "INSERT INTO orders (customer_name, phone_number, delivery_address) VALUES (:name, :phone, :address)";
+                $query = "INSERT INTO orders (name, phone, address) VALUES (:name, :phone, :address)";
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(':name', $name);
                 $stmt->bindParam(':phone', $phone);
@@ -212,11 +212,12 @@ class ProductController
                 // Lưu chi tiết đơn hàng vào bảng order_details
                 $cart = $_SESSION['cart'];
                 foreach ($cart as $product_id => $item) {
-                    $query = "INSERT INTO order_details (order_id, product_id, quantity) VALUES (:order_id, :product_id, :quantity)";
+                    $query = "INSERT INTO order_details (order_id, product_id, quantity, price) VALUES (:order_id, :product_id, :quantity, :price)";
                     $stmt = $this->db->prepare($query);
                     $stmt->bindParam(':order_id', $order_id);
                     $stmt->bindParam(':product_id', $product_id);
                     $stmt->bindParam(':quantity', $item['quantity']);
+                    $stmt->bindParam(':price', $item['price']);
                     $stmt->execute();
                 }
 

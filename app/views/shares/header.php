@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý sản phẩm</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+    .product-image {
+        max-width: 100px;
+        height: auto;
+    }
+    </style>
 </head>
 
 <body>
@@ -28,6 +34,22 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/websitebancaphe/Category/add">Thêm danh mục</a>
+                </li>
+                <li class="nav-item">
+                    <?php 
+                        if(SessionHelper::isLoggedIn()){
+                            echo "<a class='nav-link'>".$_SESSION['username']."</a>";
+                        } else {
+                            echo "<a class='nav-link' href='/websitebancaphe/account/login'>Login</a>";
+                        }
+                    ?>
+                </li>
+                <li class="nav-item">
+                    <?php 
+                        if(SessionHelper::isLoggedIn()){
+                            echo "<a class='nav-link' href='/websitebancaphe/account/logout'>Logout</a>";
+                        }
+                    ?>
                 </li>
             </ul>
         </div>
