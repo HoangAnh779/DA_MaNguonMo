@@ -2,25 +2,47 @@
 
 <h1>Danh sách sản phẩm</h1>
 <a href="/websitebancaphe/Product/add" class="btn btn-success mb-2">Thêm sản phẩm mới</a>
-<ul class="list-group">
-    <?php foreach ($products as $product): ?>
-    <li class="list-group-item">
-        <h2> <a href="/websitebancaphe/Product/show/<?php echo $product->id; ?>">
-                <?php echo htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8'); ?>
-            </a>
-        </h2>
-        <?php if ($product->image): ?>
-        <img src="/websitebancaphe/<?php echo $product->image; ?>" alt="Product Image" style="max-width: 100px;">
-        <?php endif; ?>
-        <p><?php echo htmlspecialchars($product->description, ENT_QUOTES, 'UTF-8'); ?></p>
-        <p>Giá: <?php echo htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8'); ?> VND</p>
-        <p>Danh mục: <?php echo htmlspecialchars($product->category_name, ENT_QUOTES, 'UTF-8'); ?></p>
-        <a href="/websitebancaphe/Product/edit/<?php echo $product->id; ?>" class="btn btn-warning">Sửa</a>
-        <a href="/websitebancaphe/Product/delete/<?php echo $product->id; ?>" class="btn btn-danger"
-            onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
-        <a href="/websitebancaphe/Product/addToCart/<?php echo $product->id; ?>" class="btn btn-primary">Thêm vào giỏ hàng</a>
-    </li>
-    <?php endforeach; ?>
+<ul class="list-group" id="product-list">
+    <!-- Danh sách sản phẩm sẽ được tải từ API và hiển thị tại đây -->
 </ul>
 
 <?php include 'app/views/shares/footer.php'; ?>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetch('/websitebancaphe/api/product')
+        .then(response => response.json())
+        .then(data => {
+            const productList = document.getElementById('product-list');
+            data.forEach(product => {
+                const productItem = document.createElement('li');
+                productItem.className = 'list-group-item';
+                productItem.innerHTML = `
+                    <h2><a href="/websitebancaphe/Product/show/${product.id}">${product.name}</a></h2>
+                    <p>${product.description}</p>
+                    <p>Giá: ${product.price} VND</p>
+                    <p>Danh mục: ${product.category_name}</p>
+                    <a href="/websitebancaphe/Product/edit/${product.id}" class="btn btn-warning">Sửa</a>
+                    <button class="btn btn-danger" onclick="deleteProduct(${product.id})">Xóa</button>
+                `;
+                productList.appendChild(productItem);
+            });
+        });
+});
+
+function deleteProduct(id) {
+    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+        fetch(`/websitebancaphe/api/product/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === 'Product deleted successfully') {
+                location.reload();
+            } else {
+                alert('Xóa sản phẩm thất bại');
+            }
+        });
+    }
+}
+</script>

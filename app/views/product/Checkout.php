@@ -2,7 +2,7 @@
 
 <h1>Thanh toán</h1>
 
-<form method="POST" action="/websitebancaphe/Product/orderConfirmation">
+<form method="POST" action="/websitebancaphe/Product/processCheckout">
     <div class="form-group">
         <label for="name">Họ tên:</label>
         <input type="text" id="name" name="name" class="form-control" required>
@@ -18,7 +18,6 @@
     <button type="submit" class="btn btn-primary">Thanh toán</button>
 </form>
 
-<a href="/websitebancaphe/Product/cart" class="btn btn-secondary mt-2">Quay lại giỏ
-    hàng</a>
+<a href="/websitebancaphe/Product/cart" class="btn btn-secondary mt-2">Quay lại giỏ hàng</a>
 
 <?php include 'app/views/shares/footer.php'; ?>
