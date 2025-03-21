@@ -1,5 +1,5 @@
-CREATE DATABASE webbanhang;
-USE webbanhang;
+CREATE DATABASE my_store;
+USE my_store;
 
 CREATE TABLE category (
     id INT AUTO_INCREMENT PRIMARY KEY,

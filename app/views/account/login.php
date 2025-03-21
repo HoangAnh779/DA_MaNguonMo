@@ -1,46 +1,136 @@
 <?php include(__DIR__ . '/../shares/header.php'); ?>
 
-<section class="vh-100 gradient-custom">
-    <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                <div class="card bg-dark text-white" style="border-radius: 1rem;">
-                    <div class="card-body p-5 text-center">
-                        <form action="/DA_MaNguonMo/account/checklogin" method="post">
-                            <div class="mb-md-5 mt-md-4 pb-5">
-                                <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-                                <p class="text-white-50 mb-5">Please enter your login and password!</p>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h3 class="text-center">Đăng nhập</h3>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($error)): ?>
+                        <div class="alert alert-danger"><?php echo $error; ?></div>
+                    <?php endif; ?>
 
-                                <div class="form-outline form-white mb-4">
-                                    <input type="text" name="username" class="form-control form-control-lg" />
-                                    <label class="form-label" for="typeEmailX">UserName</label>
-                                </div>
-
-                                <div class="form-outline form-white mb-4">
-                                    <input type="password" name="password" class="form-control form-control-lg" />
-                                    <label class="form-label" for="typePasswordX">Password</label>
-                                </div>
-
-                                <p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#!">Forgot password?</a></p>
-
-                                <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
-
-                                <div class="d-flex justify-content-center text-center mt-4 pt-1">
-                                    <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
-                                    <a href="#!" class="text-white"><i class="fab fa-twitter fa-lg mx-4 px-2"></i></a>
-                                    <a href="#!" class="text-white"><i class="fab fa-google fa-lg"></i></a>
+                    <form action="/DA_MaNguonMo/account/checkLogin" method="post">
+                        <div class="form-group">
+                            <label for="username">Tên đăng nhập:</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Mật khẩu:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="fas fa-eye" id="eyeIcon"></i>
+                                    </button>
                                 </div>
                             </div>
-
-                            <div>
-                                <p class="mb-0">Don't have an account? <a href="/DA_MaNguonMo/account/register" class="text-white-50 fw-bold">Sign Up</a></p>
-                            </div>
-                        </form>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p>Chưa có tài khoản? <a href="/DA_MaNguonMo/account/register">Đăng ký ngay</a></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<?php include 'app/views/shares/footer.php'; ?>
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #006837;
+    color: white;
+    padding: 20px;
+}
+
+.card-body {
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #006837;
+    border-color: #006837;
+}
+
+.btn-primary:hover {
+    background-color: #005229;
+    border-color: #005229;
+}
+
+/* Style cho nút toggle password */
+#togglePassword {
+    border: none;
+    background: none;
+    padding: 0 12px;
+    height: 100%;
+}
+
+#togglePassword:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.input-group-append {
+    border: 1px solid #ced4da;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+}
+
+.input-group-append:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+#eyeIcon {
+    color: #6c757d;
+}
+
+.alert {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+</style>
+
+<script>
+// Script xử lý ẩn/hiện mật khẩu
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+});
+
+// Tự động ẩn thông báo lỗi sau 3 giây
+const alertElement = document.querySelector('.alert');
+if (alertElement) {
+    setTimeout(() => {
+        alertElement.style.display = 'none';
+    }, 3000);
+}
+</script>
+
+<?php include(__DIR__ . '/../shares/footer.php'); ?>

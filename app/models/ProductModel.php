@@ -22,12 +22,19 @@ class ProductModel
 
     public function getProductById($id) 
     {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_OBJ);
-        return $result;
+        try {
+            $query = "SELECT p.*, c.name as category_name 
+                      FROM " . $this->table_name . " p 
+                      LEFT JOIN category c ON p.category_id = c.id 
+                      WHERE p.id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_OBJ);
+        } catch(PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function addProduct($name, $description, $price, $category_id, $image) 

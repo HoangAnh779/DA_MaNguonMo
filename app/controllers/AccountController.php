@@ -20,6 +20,11 @@ class AccountController
 
     public function login() 
     {
+        $error = '';
+        if (isset($_SESSION['error'])) {
+            $error = $_SESSION['error'];
+            unset($_SESSION['error']);
+        }
         include_once 'app/views/account/login.php';
     }
 
@@ -74,7 +79,6 @@ class AccountController
 
     public function checkLogin() 
     {
-        // Kiểm tra xem liệu form đã được submit
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
@@ -82,17 +86,21 @@ class AccountController
             $account = $this->accountModel->getAccountByUsername($username);
             if ($account) {
                 $pwd_hashed = $account->password;
-                // Check mật khẩu
                 if (password_verify($password, $pwd_hashed)) {
                     session_start();
                     $_SESSION['username'] = $account->username;
-                    header('Location: /DA_MaNguonMo/product');
+                    $_SESSION['role'] = $account->role;
+                    header('Location: /DA_MaNguonMo/home');
                     exit;
                 } else {
-                    echo "Password incorrect.";
+                    $_SESSION['error'] = "Mật khẩu không chính xác!";
+                    header('Location: /DA_MaNguonMo/account/login');
+                    exit;
                 }
             } else {
-                echo "Báo lỗi không tìm thấy tài khoản";
+                $_SESSION['error'] = "Tài khoản không tồn tại!";
+                header('Location: /DA_MaNguonMo/account/login');
+                exit;
             }
         }
     }

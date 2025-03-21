@@ -11,35 +11,35 @@ class AccountModel
 
     public function getAccountByUsername($username) 
     {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE username = :username";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_OBJ);
-        return $result;
+        try {
+            $query = "SELECT id, username, password, role FROM " . $this->table_name . " WHERE username = :username";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':username', $username);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_OBJ);
+        } catch(PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            return false;
+        }
     }
 
-    public function save($username, $name, $password, $role = "user") 
+    public function save($username, $password, $role = 'user') 
     {
-        $query = "INSERT INTO " . $this->table_name . " (username, password, role) VALUES (:username, :password, :role)";
-        $stmt = $this->conn->prepare($query);
-
-        // Làm sạch dữ liệu
-        $username = htmlspecialchars(strip_tags($username));
-        $password = htmlspecialchars(strip_tags($password));
-        $role = htmlspecialchars(strip_tags($role));
-
-        // Gán dữ liệu vào câu lệnh
-        $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':password', $password);
-        $stmt->bindParam(':role', $role);
-
-        // Thực thi câu lệnh
-        if ($stmt->execute()) {
-            return true;
+        try {
+            $query = "INSERT INTO " . $this->table_name . " (username, password, role) 
+                     VALUES (:username, :password, :role)";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            $stmt->bindParam(':username', $username);
+            $stmt->bindParam(':password', $password);
+            $stmt->bindParam(':role', $role);
+            
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            return false;
         }
-
-        return false;
     }
 }
 ?>

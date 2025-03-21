@@ -1,8 +1,9 @@
 <?php
 // Require SessionHelper and other necessary files
-require_once('app/config/database.php');
-require_once('app/models/ProductModel.php');
-require_once('app/models/CategoryModel.php');
+require_once(__DIR__ . '/../config/database.php');
+require_once(__DIR__ . '/../models/ProductModel.php');
+require_once(__DIR__ . '/../models/CategoryModel.php');
+require_once(__DIR__ . '/../middleware/AuthMiddleware.php');
 
 class ProductController 
 {
@@ -34,6 +35,7 @@ class ProductController
 
     public function add() 
     {
+        AuthMiddleware::isAdmin(); // Chỉ admin mới được thêm sản phẩm
         $categories = (new CategoryModel($this->db))->getCategories();
         include_once 'app/views/product/add.php';
     }
@@ -66,6 +68,7 @@ class ProductController
 
     public function edit($id) 
     {
+        AuthMiddleware::isAdmin(); // Chỉ admin mới được sửa sản phẩm
         $product = $this->productModel->getProductById($id);
         $categories = (new CategoryModel($this->db))->getCategories();
 
@@ -103,6 +106,7 @@ class ProductController
 
     public function delete($id) 
     {
+        AuthMiddleware::isAdmin(); // Chỉ admin mới được xóa sản phẩm
         if ($this->productModel->deleteProduct($id)) {
             header('Location: /DA_MaNguonMo/Product');
         } else {
