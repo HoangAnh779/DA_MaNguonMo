@@ -2,9 +2,10 @@
 session_start(); 
 require_once 'app/models/ProductModel.php'; 
 require_once 'app/helpers/SessionHelper.php'; 
-
+require_once 'app/config/database.php';
 require_once 'app/controllers/ProductApiController.php';
 require_once 'app/controllers/CategoryApiController.php';
+require_once 'app/controllers/HomeController.php';
 
 $url = $_GET['url'] ?? ''; 
 $url = rtrim($url, '/'); 

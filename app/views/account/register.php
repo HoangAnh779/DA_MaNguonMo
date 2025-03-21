@@ -11,7 +11,7 @@ if (isset($errors)) {
 ?> 
 
 <div class="card-body p-5 text-center"> 
-    <form class="user" action="/websitebancaphe/account/save" method="post"> 
+    <form class="user" action="/DA_MaNguonMo/account/save" method="post"> 
         <div class="form-group row"> 
             <div class="col-sm-6 mb-3 mb-sm-0"> 
                 <input type="text" class="form-control form-control-user" id="username" name="username" placeholder="username"> 

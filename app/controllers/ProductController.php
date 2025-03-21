@@ -59,7 +59,7 @@ class ProductController
                 $categories = (new CategoryModel($this->db))->getCategories();
                 include 'app/views/product/add.php';
             } else {
-                header('Location: /websitebancaphe/Product');
+                header('Location: /DA_MaNguonMo/Product');
             }
         }
     }
@@ -94,7 +94,7 @@ class ProductController
             $edit = $this->productModel->updateProduct($id, $name, $description, $price, $category_id, $image);
 
             if ($edit) {
-                header('Location: /websitebancaphe/Product');
+                header('Location: /DA_MaNguonMo/Product');
             } else {
                 echo "Đã xảy ra lỗi khi lưu sản phẩm.";
             }
@@ -104,7 +104,7 @@ class ProductController
     public function delete($id) 
     {
         if ($this->productModel->deleteProduct($id)) {
-            header('Location: /websitebancaphe/Product');
+            header('Location: /DA_MaNguonMo/Product');
         } else {
             echo "Đã xảy ra lỗi khi xóa sản phẩm.";
         }
@@ -169,7 +169,7 @@ class ProductController
             ];
         }
 
-        header('Location: /websitebancaphe/Product/cart');
+        header('Location: /DA_MaNguonMo/Product/cart');
     }
 
     public function cart() 
@@ -228,7 +228,7 @@ class ProductController
                 $this->db->commit();
 
                 // Chuyển hướng đến trang xác nhận đơn hàng
-                header('Location: /websitebancaphe/Product/orderConfirmation');
+                header('Location: /DA_MaNguonMo/Product/orderConfirmation');
             } catch (Exception $e) {
                 // Rollback giao dịch nếu có lỗi
                 $this->db->rollBack();

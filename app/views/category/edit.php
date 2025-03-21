@@ -10,7 +10,7 @@
         </ul>
     </div>
 <?php endif; ?>
-<form method="POST" action="/websitebancaphe/Category/update" onsubmit="return validateForm();">
+<form method="POST" action="/DA_MaNguonMo/Category/update" onsubmit="return validateForm();">
     <input type="hidden" name="id" value="<?php echo $category->id; ?>">
     <div class="form-group">
         <label for="name">Tên danh mục:</label>
@@ -22,6 +22,6 @@
     </div>
     <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
 </form>
-<a href="/websitebancaphe/Category/list" class="btn btn-secondary mt-2">Quay lại danh sách danh mục</a>
+<a href="/DA_MaNguonMo/Category/list" class="btn btn-secondary mt-2">Quay lại danh sách danh mục</a>
 
 <?php include 'app/views/shares/footer.php'; ?>

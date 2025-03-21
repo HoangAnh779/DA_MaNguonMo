@@ -1,4 +1,4 @@
-file <?php include 'app/views/shares/header.php'; ?>
+<?php include(__DIR__ . '/../shares/header.php'); ?>
 
 <section class="vh-100 gradient-custom">
     <div class="container py-5 h-100">
@@ -6,7 +6,7 @@ file <?php include 'app/views/shares/header.php'; ?>
             <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                 <div class="card bg-dark text-white" style="border-radius: 1rem;">
                     <div class="card-body p-5 text-center">
-                        <form action="/websitebancaphe/account/checklogin" method="post">
+                        <form action="/DA_MaNguonMo/account/checklogin" method="post">
                             <div class="mb-md-5 mt-md-4 pb-5">
                                 <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
                                 <p class="text-white-50 mb-5">Please enter your login and password!</p>
@@ -33,7 +33,7 @@ file <?php include 'app/views/shares/header.php'; ?>
                             </div>
 
                             <div>
-                                <p class="mb-0">Don't have an account? <a href="/websitebancaphe/account/register" class="text-white-50 fw-bold">Sign Up</a></p>
+                                <p class="mb-0">Don't have an account? <a href="/DA_MaNguonMo/account/register" class="text-white-50 fw-bold">Sign Up</a></p>
                             </div>
                         </form>
                     </div>

@@ -39,21 +39,18 @@ class ProductApiController
     public function store() 
     {
         header('Content-Type: application/json');
-        $data = json_decode(file_get_contents("php://input"), true);
+        $name = $_POST['name'] ?? '';
+        $description = $_POST['description'] ?? '';
+        $price = $_POST['price'] ?? '';
+        $category_id = $_POST['category_id'] ?? '';
+        $image = $_FILES['image'] ?? null;
 
-        $name = $data['name'] ?? '';
-        $description = $data['description'] ?? '';
-        $price = $data['price'] ?? '';
-        $category_id = $data['category_id'] ?? null;
+        $result = $this->productModel->addProduct($name, $description, $price, $category_id, $image);
 
-        $result = $this->productModel->addProduct($name, $description, $price, $category_id);
-
-        if (is_array($result)) {
-            http_response_code(400);
-            echo json_encode(['errors' => $result]);
-        } else {
-            http_response_code(201);
+        if ($result === true) {
             echo json_encode(['message' => 'Product created successfully']);
+        } else {
+            echo json_encode(['errors' => $result]);
         }
     }
 

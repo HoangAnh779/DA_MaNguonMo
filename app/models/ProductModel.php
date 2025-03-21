@@ -11,7 +11,7 @@ class ProductModel
 
     public function getProducts() 
     {
-        $query = "SELECT p.id, p.name, p.description, p.price, c.name as category_name 
+        $query = "SELECT p.id, p.name, p.description, p.price, p.image, c.name as category_name 
                   FROM " . $this->table_name . " p 
                   LEFT JOIN category c ON p.category_id = c.id";
         $stmt = $this->conn->prepare($query);
@@ -30,7 +30,7 @@ class ProductModel
         return $result;
     }
 
-    public function addProduct($name, $description, $price, $category_id) 
+    public function addProduct($name, $description, $price, $category_id, $image) 
     {
         $errors = [];
         if (empty($name)) {
@@ -46,7 +46,13 @@ class ProductModel
             return $errors;
         }
 
-        $query = "INSERT INTO " . $this->table_name . " (name, description, price, category_id) VALUES (:name, :description, :price, :category_id)";
+        $imagePath = null;
+        if ($image && $image['tmp_name']) {
+            $imagePath = 'uploads/' . uniqid() . '-' . basename($image['name']);
+            move_uploaded_file($image['tmp_name'], $imagePath);
+        }
+
+        $query = "INSERT INTO " . $this->table_name . " (name, description, price, category_id, image) VALUES (:name, :description, :price, :category_id, :image)";
         $stmt = $this->conn->prepare($query);
 
         $name = htmlspecialchars(strip_tags($name));
@@ -58,6 +64,7 @@ class ProductModel
         $stmt->bindParam(':description', $description);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':image', $imagePath);
 
         if ($stmt->execute()) {
             return true;
@@ -66,9 +73,29 @@ class ProductModel
         return false;
     }
 
-    public function updateProduct($id, $name, $description, $price, $category_id) 
+    public function updateProduct($id, $name, $description, $price, $category_id, $image) 
     {
-        $query = "UPDATE " . $this->table_name . " SET name=:name, description=:description, price=:price, category_id=:category_id WHERE id=:id";
+        $errors = [];
+        if (empty($name)) {
+            $errors['name'] = 'Tên sản phẩm không được để trống';
+        }
+        if (empty($description)) {
+            $errors['description'] = 'Mô tả không được để trống';
+        }
+        if (!is_numeric($price) || $price < 0) {
+            $errors['price'] = 'Giá sản phẩm không hợp lệ';
+        }
+        if (count($errors) > 0) {
+            return $errors;
+        }
+
+        $imagePath = null;
+        if ($image && $image['tmp_name']) {
+            $imagePath = 'uploads/' . uniqid() . '-' . basename($image['name']);
+            move_uploaded_file($image['tmp_name'], $imagePath);
+        }
+
+        $query = "UPDATE " . $this->table_name . " SET name=:name, description=:description, price=:price, category_id=:category_id, image=:image WHERE id=:id";
         $stmt = $this->conn->prepare($query);
 
         $name = htmlspecialchars(strip_tags($name));
@@ -81,6 +108,7 @@ class ProductModel
         $stmt->bindParam(':description', $description);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':image', $imagePath);
 
         if ($stmt->execute()) {
             return true;

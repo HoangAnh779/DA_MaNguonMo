@@ -48,7 +48,7 @@ class CategoryController
                 $errors = $result;
                 include 'app/views/category/add.php';
             } else {
-                header('Location: /websitebancaphe/Category');
+                header('Location: /DA_MaNguonMo/Category');
             }
         }
     }
@@ -74,7 +74,7 @@ class CategoryController
             $edit = $this->categoryModel->updateCategory($id, $name, $description);
 
             if ($edit) {
-                header('Location: /websitebancaphe/Category');
+                header('Location: /DA_MaNguonMo/Category');
             } else {
                 echo "Đã xảy ra lỗi khi lưu danh mục.";
             }
@@ -84,7 +84,7 @@ class CategoryController
     public function delete($id) 
     {
         if ($this->categoryModel->deleteCategory($id)) {
-            header('Location: /websitebancaphe/Category');
+            header('Location: /DA_MaNguonMo/Category');
         } else {
             echo "Đã xảy ra lỗi khi xóa danh mục.";
         }

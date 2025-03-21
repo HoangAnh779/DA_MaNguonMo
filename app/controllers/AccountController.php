@@ -58,7 +58,7 @@ class AccountController
                 $result = $this->accountModel->save($username, $fullName, $password);
 
                 if ($result) {
-                    header('Location: /websitebancaphe/account/login');
+                    header('Location: /DA_MaNguonMo/account/login');
                 }
             }
         }
@@ -69,7 +69,7 @@ class AccountController
         unset($_SESSION['username']);
         unset($_SESSION['role']);
 
-        header('Location: /websitebancaphe/product');
+        header('Location: /DA_MaNguonMo/product');
     }
 
     public function checkLogin() 
@@ -86,7 +86,7 @@ class AccountController
                 if (password_verify($password, $pwd_hashed)) {
                     session_start();
                     $_SESSION['username'] = $account->username;
-                    header('Location: /websitebancaphe/product');
+                    header('Location: /DA_MaNguonMo/product');
                     exit;
                 } else {
                     echo "Password incorrect.";
