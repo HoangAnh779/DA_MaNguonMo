@@ -161,6 +161,7 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
     .user-section {
         display: flex;
         align-items: center;
+        gap: 20px;
     }
 
     .user-info {
@@ -215,6 +216,58 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
             display: none;
         }
     }
+
+    .cart-icon {
+        position: relative;
+        color: #006837;
+        font-size: 24px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .cart-icon:hover {
+        color: #005229;
+        transform: scale(1.1);
+    }
+
+    .cart-count {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #e44d26;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: scaleIn 0.3s ease;
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Hiệu ứng khi thêm sản phẩm vào giỏ */
+    .cart-icon.bump {
+        animation: bump 0.3s ease;
+    }
+
+    @keyframes bump {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
     </style>
 </head>
 
@@ -226,6 +279,13 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
             </a>
         </div>
         <div class="user-section">
+            <a href="/DA_MaNguonMo/Product/cart" class="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <?php if(isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
+                    <span class="cart-count"><?php echo count($_SESSION['cart']); ?></span>
+                <?php endif; ?>
+            </a>
+
             <?php if(SessionHelper::isLoggedIn()): ?>
                 <div class="user-info">
                     <span class="username">
@@ -275,3 +335,17 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
     </nav>
 
     <div class="container mt-4">
+
+<script>
+function animateCart() {
+    const cartIcon = document.querySelector('.cart-icon');
+    cartIcon.classList.add('bump');
+    setTimeout(() => {
+        cartIcon.classList.remove('bump');
+    }, 300);
+}
+
+document.addEventListener('cartUpdated', function() {
+    animateCart();
+});
+</script>

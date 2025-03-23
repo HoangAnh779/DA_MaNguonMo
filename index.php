@@ -84,7 +84,29 @@ if (file_exists('app/controllers/' . $controllerName . '.php')) {
 
 // Kiểm tra và gọi action
 if (method_exists($controller, $action)) {
-    call_user_func_array([$controller, $action], array_slice($url, 2));
+    switch ($controllerName) {
+        case 'Product':
+            require_once 'app/controllers/ProductController.php';
+            $controller = new ProductController();
+            switch ($action) {
+                case 'checkout':
+                    $controller->checkout();
+                    break;
+                case 'placeOrder':
+                    $controller->placeOrder();
+                    break;
+                case 'removeFromCart':
+                    $controller->removeFromCart();
+                    break;
+                case 'orderConfirmation':
+                    require_once 'app/views/product/orderConfirmation.php';
+                    break;
+                // ... các case khác ...
+            }
+            break;
+        default:
+            call_user_func_array([$controller, $action], array_slice($url, 2));
+    }
 } else {
     die('Action not found');
 }

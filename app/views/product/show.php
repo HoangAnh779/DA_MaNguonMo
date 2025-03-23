@@ -19,15 +19,23 @@
                     <h3>Mô tả sản phẩm</h3>
                     <p><?php echo $product->description; ?></p>
                 </div>
-                <div class="product-category">
-                    <p><strong>Danh mục:</strong> 
-                        <?php echo isset($product->category_name) ? $product->category_name : 'Chưa phân loại'; ?>
-                    </p>
-                </div>
                 <?php if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin'): ?>
-                    <button class="btn btn-primary btn-lg" onclick="addToCart(<?php echo $product->id; ?>)">
-                        <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
-                    </button>
+                    <form action="/DA_MaNguonMo/Product/cart" method="POST" class="d-flex align-items-center gap-3">
+                        <input type="hidden" name="product_id" value="<?php echo $product->id; ?>">
+                        <div class="quantity-control">
+                            <label for="quantity" class="form-label">Số lượng:</label>
+                            <input type="number" 
+                                   name="quantity" 
+                                   id="quantity" 
+                                   class="form-control" 
+                                   value="1" 
+                                   min="1" 
+                                   max="99">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+                        </button>
+                    </form>
                 <?php endif; ?>
                 <a href="/DA_MaNguonMo/Product" class="btn btn-secondary btn-lg">
                     <i class="fas fa-arrow-left"></i> Quay lại
@@ -78,7 +86,7 @@
 }
 
 .product-description {
-    margin: 30px 0;
+    margin: 30px 0 100px;
     padding: 20px;
     background: #f8f9fa;
     border-radius: 10px;

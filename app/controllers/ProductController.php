@@ -176,67 +176,119 @@ class ProductController
         header('Location: /DA_MaNguonMo/Product/cart');
     }
 
-    public function cart() 
-    {
-        $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
-        include 'app/views/product/cart.php';
-    }
-
-    public function checkout() 
-    {
-        include 'app/views/product/checkout.php';
-    }
-
-    public function processCheckout() 
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $name = $_POST['name'];
-            $phone = $_POST['phone'];
-            $address = $_POST['address'];
-
-            // Kiểm tra giỏ hàng
-            if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
-                echo "Giỏ hàng trống.";
-                return;
+    public function cart() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $product_id = $_POST['product_id'] ?? null;
+            $quantity = $_POST['quantity'] ?? 1;
+            
+            if ($product_id) {
+                // Lấy thông tin sản phẩm
+                $product = $this->productModel->getProductById($product_id);
+                
+                if ($product) {
+                    // Khởi tạo giỏ hàng nếu chưa có
+                    if (!isset($_SESSION['cart'])) {
+                        $_SESSION['cart'] = [];
+                    }
+                    
+                    // Thêm hoặc cập nhật sản phẩm trong giỏ hàng
+                    if (isset($_SESSION['cart'][$product_id])) {
+                        $_SESSION['cart'][$product_id]['quantity'] += $quantity;
+                    } else {
+                        $_SESSION['cart'][$product_id] = [
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'price' => $product->price,
+                            'image' => $product->image,
+                            'quantity' => $quantity
+                        ];
+                    }
+                    
+                    $_SESSION['success'] = 'Đã thêm sản phẩm vào giỏ hàng';
+                }
             }
+        }
+        
+        require_once 'app/views/product/cart.php';
+    }
 
-            // Bắt đầu giao dịch
-            $this->db->beginTransaction();
+    public function checkout() {
+        // Kiểm tra giỏ hàng có trống không
+        if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+            header('Location: /DA_MaNguonMo/Product/cart');
+            exit();
+        }
+        
+        require_once 'app/views/product/checkout.php';
+    }
 
+    public function placeOrder() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-                // Lưu thông tin đơn hàng vào bảng orders
-                $query = "INSERT INTO orders (name, phone, address) VALUES (:name, :phone, :address)";
-                $stmt = $this->db->prepare($query);
-                $stmt->bindParam(':name', $name);
-                $stmt->bindParam(':phone', $phone);
-                $stmt->bindParam(':address', $address);
-                $stmt->execute();
-                $order_id = $this->db->lastInsertId();
-
-                // Lưu chi tiết đơn hàng vào bảng order_details
-                $cart = $_SESSION['cart'];
-                foreach ($cart as $product_id => $item) {
-                    $query = "INSERT INTO order_details (order_id, product_id, quantity, price) VALUES (:order_id, :product_id, :quantity, :price)";
-                    $stmt = $this->db->prepare($query);
-                    $stmt->bindParam(':order_id', $order_id);
-                    $stmt->bindParam(':product_id', $product_id);
-                    $stmt->bindParam(':quantity', $item['quantity']);
-                    $stmt->bindParam(':price', $item['price']);
-                    $stmt->execute();
+                // Kiểm tra giỏ hàng
+                if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+                    throw new Exception('Giỏ hàng trống');
                 }
 
-                // Xóa giỏ hàng sau khi đặt hàng thành công
+                $db = new Database();
+                $conn = $db->getConnection();
+                
+                if (!$conn) {
+                    throw new Exception('Không thể kết nối database');
+                }
+
+                $conn->beginTransaction();
+
+                // 1. Thêm vào bảng orders - chỉ với các trường có trong CSDL
+                $sql = "INSERT INTO orders (name, phone, address, created_at) 
+                       VALUES (:name, :phone, :address, NOW())";
+                
+                $stmt = $conn->prepare($sql);
+                $stmt->execute([
+                    ':name' => $_POST['name'],
+                    ':phone' => $_POST['phone'],
+                    ':address' => $_POST['address']
+                ]);
+
+                $orderId = $conn->lastInsertId();
+
+                // 2. Thêm vào bảng order_details
+                $sql = "INSERT INTO order_details (order_id, product_id, quantity, price) 
+                       VALUES (:order_id, :product_id, :quantity, :price)";
+                
+                $stmt = $conn->prepare($sql);
+
+                foreach ($_SESSION['cart'] as $item) {
+                    $stmt->execute([
+                        ':order_id' => $orderId,
+                        ':product_id' => $item['id'],
+                        ':quantity' => $item['quantity'],
+                        ':price' => $item['price']
+                    ]);
+                }
+
+                // Commit transaction
+                $conn->commit();
+
+                // Lưu order ID vào session
+                $_SESSION['last_order_id'] = $orderId;
+                $_SESSION['success'] = 'Đặt hàng thành công!';
+                
+                // Xóa giỏ hàng
                 unset($_SESSION['cart']);
 
-                // Commit giao dịch
-                $this->db->commit();
-
-                // Chuyển hướng đến trang xác nhận đơn hàng
+                // Chuyển hướng đến trang xác nhận
                 header('Location: /DA_MaNguonMo/Product/orderConfirmation');
+                exit();
+
             } catch (Exception $e) {
-                // Rollback giao dịch nếu có lỗi
-                $this->db->rollBack();
-                echo "Đã xảy ra lỗi khi xử lý đơn hàng: " . $e->getMessage();
+                if (isset($conn)) {
+                    $conn->rollBack();
+                }
+                error_log("Order Error: " . $e->getMessage());
+                $_SESSION['error'] = 'Có lỗi xảy ra khi đặt hàng';
+                header('Location: /DA_MaNguonMo/Product/checkout');
+                exit();
             }
         }
     }
@@ -244,6 +296,37 @@ class ProductController
     public function orderConfirmation() 
     {
         include 'app/views/product/orderConfirmation.php';
+    }
+
+    public function removeFromCart() {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Đọc dữ liệu JSON từ request
+            $data = json_decode(file_get_contents('php://input'), true);
+            $productId = $data['product_id'] ?? null;
+            
+            if ($productId && isset($_SESSION['cart'][$productId])) {
+                // Xóa sản phẩm khỏi giỏ hàng
+                unset($_SESSION['cart'][$productId]);
+                
+                // Nếu giỏ hàng trống, xóa luôn session cart
+                if (empty($_SESSION['cart'])) {
+                    unset($_SESSION['cart']);
+                }
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Đã xóa sản phẩm khỏi giỏ hàng'
+                ]);
+                exit;
+            }
+        }
+        
+        echo json_encode([
+            'success' => false,
+            'message' => 'Không thể xóa sản phẩm'
+        ]);
     }
 }
 ?>
