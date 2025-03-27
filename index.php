@@ -74,6 +74,86 @@ if ($controllerName === 'ApiController' && isset($url[1])) {
     }
 }
 
+// Special routing for Admin controller
+if ($url[0] === 'Admin') {
+    switch($url[1] ?? '') {
+        case 'user':
+            require_once 'app/controllers/AdminUserController.php';
+            $controller = new AdminUserController();
+            
+            if (isset($url[2])) {
+                switch($url[2]) {
+                    case 'edit':
+                        $controller->edit($url[3]);
+                        break;
+                    case 'update':
+                        $controller->update();
+                        break;
+                    case 'delete':
+                        $controller->delete($url[3]);
+                        break;
+                    default:
+                        $controller->index();
+                }
+            } else {
+                $controller->index();
+            }
+            exit;
+        // Add other admin routes here if needed
+        default:
+            die('Invalid admin route');
+    }
+}
+
+// Add a route for the admin user management page
+if ($controllerName === 'AdminUserController' && $action === 'index') {
+    require_once 'app/controllers/AdminUserController.php';
+    $controller = new AdminUserController();
+    $controller->index();
+    exit;
+}
+
+// Add a route for the admin user management page
+if ($controllerName === 'Admin' && $action === 'user') {
+    require_once 'app/controllers/AdminUserController.php';
+    $controller = new AdminUserController();
+    $controller->index();
+    exit;
+}
+
+// Add a route for the account controller
+if ($controllerName === 'AccountController' || $url[0] === 'account') {
+    require_once 'app/controllers/AccountController.php';
+    $controller = new AccountController();
+    
+    switch ($action) {
+        case 'login':
+            $controller->login();
+            break;
+        case 'register':
+            $controller->register();
+            break;
+        case 'save':
+            $controller->save();
+            break;
+        case 'checkLogin':
+            $controller->checkLogin();
+            break;
+        case 'logout':
+            $controller->logout();
+            break;
+        case 'forgotPassword':
+            $controller->forgotPassword();
+            break;
+        case 'processForgotPassword':
+            $controller->processForgotPassword();
+            break;
+        default:
+            $controller->login(); // Default to login page
+    }
+    exit;
+}
+
 // Tạo đối tượng controller tương ứng cho các yêu cầu không phải API
 if (file_exists('app/controllers/' . $controllerName . '.php')) {
     require_once 'app/controllers/' . $controllerName . '.php';
@@ -101,8 +181,19 @@ if (method_exists($controller, $action)) {
                 case 'orderConfirmation':
                     require_once 'app/views/product/orderConfirmation.php';
                     break;
+                case 'updateCart':
+                    $controller->updateCart();
+                    break;
+                case 'updateCartBatch':
+                    $controller->updateCartBatch();
+                    break;
                 // ... các case khác ...
             }
+            break;
+        case 'Promotion':
+            require_once 'app/controllers/PromotionController.php';
+            $controller = new PromotionController();
+            $controller->index();
             break;
         default:
             call_user_func_array([$controller, $action], array_slice($url, 2));

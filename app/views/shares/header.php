@@ -280,7 +280,7 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
         </div>
         <div class="user-section">
             <a href="/DA_MaNguonMo/Product/cart" class="cart-icon">
-                <i class="fas fa-shopping-cart"></i>
+                <i class="fas fa-shopping-cart" style="color: #006837;"></i>
                 <?php if(isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
                     <span class="cart-count"><?php echo count($_SESSION['cart']); ?></span>
                 <?php endif; ?>
@@ -323,12 +323,18 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
                     <li class="nav-item">
                         <a class="nav-link" href="/DA_MaNguonMo/Category/add">Thêm danh mục</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/DA_MaNguonMo/Admin/user">Quản lý người dùng</a>
+                    </li>
                 <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link" href="/DA_MaNguonMo/home/contact">Liên hệ</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/DA_MaNguonMo/home/about">Về chúng tôi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/DA_MaNguonMo/Promotion">Khuyến mãi</a>
                 </li>
             </ul>
         </div>
@@ -349,3 +355,5 @@ document.addEventListener('cartUpdated', function() {
     animateCart();
 });
 </script>
+</body>
+</html>

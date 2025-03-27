@@ -44,7 +44,7 @@
                             <td>
                                 <button class="btn btn-danger btn-sm remove-item"
                                         data-id="<?php echo $item['id']; ?>">
-                                    <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash" style="margin-left: 5px;"></i>
                                 </button>
                             </td>
                         </tr>
@@ -59,10 +59,15 @@
             </table>
         </div>
         
-        <div class="d-flex justify-content-between mt-4">
-            <a href="/DA_MaNguonMo/Product" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
-            </a>
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="d-flex gap-3">
+                <a href="/DA_MaNguonMo/Product" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+                </a>
+                <button type="button" id="updateCartBtn" class="btn btn-success">
+                    <i class="fas fa-sync-alt"></i> Cập nhật giỏ hàng
+                </button>
+            </div>
             <a href="/DA_MaNguonMo/Product/checkout" class="btn btn-primary">
                 Thanh toán <i class="fas fa-arrow-right"></i>
             </a>
@@ -86,8 +91,16 @@
 }
 
 .quantity-input {
-    border-radius: 20px;
     text-align: center;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    transition: all 0.3s ease;
+}
+
+.quantity-input:focus {
+    border-color: #006837;
+    box-shadow: 0 0 0 0.2rem rgba(0,104,55,0.25);
 }
 
 .table > :not(caption) > * > * {
@@ -95,8 +108,28 @@
 }
 
 .btn {
-    border-radius: 20px;
-    padding: 8px 20px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-success {
+    background-color: #006837;
+    border-color: #006837;
+}
+
+.btn-success:hover {
+    background-color: #005229;
+    border-color: #005229;
+}
+
+.btn i {
+    margin-right: 5px;
 }
 
 .remove-item {
@@ -123,6 +156,31 @@
 @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
+}
+
+.alert {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Style cho animation quay icon khi đang cập nhật */
+.fa-spin {
+    animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 </style>
 
@@ -161,6 +219,173 @@ function removeFromCart(productId) {
         alert('Có lỗi xảy ra khi xóa sản phẩm');
     });
 }
+
+// Xử lý cập nhật số lượng
+document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('change', function() {
+        const productId = this.getAttribute('data-id');
+        const newQuantity = parseInt(this.value);
+        
+        // Kiểm tra số lượng hợp lệ
+        if (newQuantity < 1) {
+            this.value = 1;
+            return;
+        }
+        
+        updateCartQuantity(productId, newQuantity, this);
+    });
+});
+
+function updateCartQuantity(productId, quantity, inputElement) {
+    const row = inputElement.closest('tr');
+    const priceCell = row.querySelector('td:nth-child(2)');
+    const totalCell = row.querySelector('td:nth-child(4)');
+    const price = parseFloat(priceCell.textContent.replace(/[^\d]/g, ''));
+    
+    // Hiển thị loading
+    row.style.opacity = '0.5';
+    
+    fetch('/DA_MaNguonMo/Product/updateCart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Cập nhật tổng tiền của sản phẩm
+            const newTotal = price * quantity;
+            totalCell.textContent = new Intl.NumberFormat('vi-VN').format(newTotal) + '₫';
+            
+            // Cập nhật tổng tiền giỏ hàng
+            updateCartTotal();
+            
+            // Cập nhật số lượng trên icon giỏ hàng
+            updateCartIcon(data.cartCount);
+        } else {
+            inputElement.value = data.oldQuantity;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        inputElement.value = data.oldQuantity;
+    })
+    .finally(() => {
+        row.style.opacity = '1';
+    });
+}
+
+function updateCartTotal() {
+    let total = 0;
+    document.querySelectorAll('tr').forEach(row => {
+        const quantityInput = row.querySelector('.quantity-input');
+        if (quantityInput) {
+            const quantity = parseInt(quantityInput.value);
+            const price = parseFloat(row.querySelector('td:nth-child(2)').textContent.replace(/[^\d]/g, ''));
+            total += price * quantity;
+        }
+    });
+    
+    // Cập nhật tổng tiền
+    const totalElement = document.querySelector('tfoot strong:last-child');
+    if (totalElement) {
+        totalElement.textContent = new Intl.NumberFormat('vi-VN').format(total) + '₫';
+    }
+}
+
+function updateCartIcon(count) {
+    const cartCount = document.querySelector('.cart-count');
+    if (cartCount) {
+        if (count > 0) {
+            cartCount.textContent = count;
+            cartCount.style.display = 'flex';
+        } else {
+            cartCount.style.display = 'none';
+        }
+    }
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '1050';
+    
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+
+document.getElementById('updateCartBtn').addEventListener('click', function() {
+    const quantities = {};
+    let hasChanges = false;
+    
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        const productId = input.getAttribute('data-id');
+        const newQuantity = parseInt(input.value);
+        const oldQuantity = parseInt(input.getAttribute('data-original-quantity') || input.defaultValue);
+        
+        if (newQuantity !== oldQuantity) {
+            hasChanges = true;
+            quantities[productId] = newQuantity;
+        }
+    });
+    
+    if (!hasChanges) {
+        return;
+    }
+    
+    // Thay đổi trạng thái nút
+    const button = this;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Đang cập nhật...';
+    button.disabled = true;
+    
+    fetch('/DA_MaNguonMo/Product/updateCartBatch', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantities })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Cập nhật lại trang sau 1 giây
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        // Khôi phục trạng thái nút
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 1000);
+    });
+});
+
+// Thêm data-original-quantity cho mỗi input số lượng
+document.querySelectorAll('.quantity-input').forEach(input => {
+    input.setAttribute('data-original-quantity', input.value);
+});
 </script>
 
 <?php include(__DIR__ . '/../shares/footer.php'); ?>

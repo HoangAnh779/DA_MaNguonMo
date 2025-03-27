@@ -2,7 +2,7 @@
 
 <section layout:fragment="content" class="container" style="max-width: 100%; padding: 0;">
     <div class="banner">
-        <img src="/DA_MaNguonMo/public/images/caro1.png"
+        <img src="/DA_MaNguonMo/public/images/vietphuc-1920x576px-20250321083739.jpg"
             alt="" style="width: 100%;" />
     </div>
     <div class="products" style="margin: 100px auto">

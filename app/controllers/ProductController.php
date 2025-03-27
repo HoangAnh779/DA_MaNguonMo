@@ -328,5 +328,77 @@ class ProductController
             'message' => 'Không thể xóa sản phẩm'
         ]);
     }
+
+    public function updateCart() {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $productId = $data['product_id'] ?? null;
+            $quantity = $data['quantity'] ?? null;
+            
+            if ($productId && $quantity && isset($_SESSION['cart'][$productId])) {
+                // Cập nhật số lượng
+                $_SESSION['cart'][$productId]['quantity'] = $quantity;
+                
+                // Tính tổng số sản phẩm trong giỏ
+                $cartCount = 0;
+                foreach ($_SESSION['cart'] as $item) {
+                    $cartCount += $item['quantity'];
+                }
+                
+                echo json_encode([
+                    'success' => true,
+                    'cartCount' => $cartCount,
+                    'message' => 'Cập nhật thành công'
+                ]);
+                exit;
+            }
+        }
+        
+        echo json_encode([
+            'success' => false,
+            'message' => 'Cập nhật thất bại'
+        ]);
+    }
+
+    public function updateCartBatch() {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $quantities = $data['quantities'] ?? [];
+                
+                if (empty($quantities)) {
+                    throw new Exception('Không có dữ liệu cập nhật');
+                }
+                
+                foreach ($quantities as $productId => $quantity) {
+                    if (isset($_SESSION['cart'][$productId])) {
+                        // Đảm bảo số lượng hợp lệ
+                        $quantity = max(1, intval($quantity));
+                        $_SESSION['cart'][$productId]['quantity'] = $quantity;
+                    }
+                }
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Cập nhật giỏ hàng thành công'
+                ]);
+                
+            } catch (Exception $e) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Method not allowed'
+            ]);
+        }
+    }
 }
 ?>

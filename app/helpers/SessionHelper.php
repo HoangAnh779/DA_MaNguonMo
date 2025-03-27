@@ -6,7 +6,8 @@ class SessionHelper {
     } 
  
     public static function isAdmin() { 
-        return isset($_SESSION['username']) && $_SESSION['user_role'] === 'admin'; 
+        // Changed from user_role to role to match the session variable set in AccountController
+        return isset($_SESSION['username']) && $_SESSION['role'] === 'admin';
     } 
 } 
 ?>

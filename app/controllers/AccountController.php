@@ -87,21 +87,65 @@ class AccountController
             if ($account) {
                 $pwd_hashed = $account->password;
                 if (password_verify($password, $pwd_hashed)) {
-                    session_start();
+                    // Start session if not already started
+                    if (session_status() === PHP_SESSION_NONE) {
+                        session_start();
+                    }
+                    
+                    // Set session variables
                     $_SESSION['username'] = $account->username;
-                    $_SESSION['role'] = $account->role;
-                    header('Location: /DA_MaNguonMo/home');
-                    exit;
-                } else {
-                    $_SESSION['error'] = "Mật khẩu không chính xác!";
-                    header('Location: /DA_MaNguonMo/account/login');
+                    $_SESSION['role'] = $account->role ?? 'user'; // Default to 'user' if role is null
+                    $_SESSION['user_id'] = $account->id;
+                    
+                    // Redirect based on role
+                    if ($_SESSION['role'] === 'admin') {
+                        header('Location: /DA_MaNguonMo/Admin/user');
+                    } else {
+                        header('Location: /DA_MaNguonMo/home');
+                    }
                     exit;
                 }
+                $_SESSION['error'] = "Mật khẩu không chính xác!";
             } else {
                 $_SESSION['error'] = "Tài khoản không tồn tại!";
-                header('Location: /DA_MaNguonMo/account/login');
-                exit;
             }
+            header('Location: /DA_MaNguonMo/account/login');
+            exit;
+        }
+    }
+
+    public function forgotPassword() 
+    {
+        $error = isset($_SESSION['error']) ? $_SESSION['error'] : '';
+        $success = isset($_SESSION['success']) ? $_SESSION['success'] : '';
+        unset($_SESSION['error']);
+        unset($_SESSION['success']);
+        include_once 'app/views/account/forgotPassword.php';
+    }
+
+    public function processForgotPassword() 
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $username = $_POST['username'] ?? '';
+            
+            $account = $this->accountModel->getAccountByUsername($username);
+            if ($account) {
+                // Generate random password
+                $newPassword = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 8);
+                $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+                
+                // Update password in database
+                if ($this->accountModel->updatePassword($username, $hashedPassword)) {
+                    $_SESSION['success'] = "Mật khẩu mới của bạn là: " . $newPassword;
+                } else {
+                    $_SESSION['error'] = "Không thể cập nhật mật khẩu";
+                }
+            } else {
+                $_SESSION['error'] = "Không tìm thấy tài khoản";
+            }
+            
+            header('Location: /DA_MaNguonMo/account/forgotPassword');
+            exit;
         }
     }
 }

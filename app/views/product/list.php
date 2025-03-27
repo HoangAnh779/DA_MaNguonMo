@@ -1,12 +1,9 @@
 <?php include(__DIR__ . '/../shares/header.php'); ?>
-
-<h1>Danh sách sản phẩm</h1>
-
 <!-- Thanh tìm kiếm và bộ lọc -->
 <div class="filter-container mb-4">
     <div class="row">
         <!-- Tìm kiếm -->
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="input-group">
                 <input type="text" id="searchInput" class="form-control" placeholder="Nhập tên sản phẩm cần tìm...">
                 <div class="input-group-append">
@@ -17,16 +14,8 @@
             </div>
         </div>
         
-        <!-- Lọc theo danh mục -->
-        <div class="col-md-3">
-            <select id="categoryFilter" class="form-control" onchange="filterProducts()">
-                <option value="">Tất cả danh mục</option>
-                <!-- Danh mục sẽ được load động -->
-            </select>
-        </div>
-        
         <!-- Lọc theo giá -->
-        <div class="col-md-4">
+        <div class="col-md-5">
             <div class="price-filter">
                 <select id="priceFilter" class="form-control" onchange="filterProducts()">
                     <option value="">Tất cả mức giá</option>
@@ -207,7 +196,6 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    loadCategories();
     loadProducts();
     
     document.getElementById('searchInput').addEventListener('keypress', function(e) {
@@ -217,25 +205,9 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-// Load danh mục
-function loadCategories() {
-    fetch('/DA_MaNguonMo/api/category')
-        .then(response => response.json())
-        .then(data => {
-            const categorySelect = document.getElementById('categoryFilter');
-            data.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.id;
-                option.textContent = category.name;
-                categorySelect.appendChild(option);
-            });
-        });
-}
-
 // Hàm lọc sản phẩm
 function filterProducts() {
     const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-    const selectedCategory = document.getElementById('categoryFilter').value;
     const priceRange = document.getElementById('priceFilter').value;
 
     fetch('/DA_MaNguonMo/api/product')
@@ -247,13 +219,6 @@ function filterProducts() {
             if (searchTerm) {
                 filteredProducts = filteredProducts.filter(product => 
                     product.name.toLowerCase().includes(searchTerm)
-                );
-            }
-
-            // Lọc theo danh mục
-            if (selectedCategory) {
-                filteredProducts = filteredProducts.filter(product => 
-                    product.category_id == selectedCategory
                 );
             }
 
@@ -324,7 +289,6 @@ function displayProducts(products) {
 // Reset tất cả bộ lọc
 function resetFilters() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('categoryFilter').value = '';
     document.getElementById('priceFilter').value = '';
     loadProducts();
 }

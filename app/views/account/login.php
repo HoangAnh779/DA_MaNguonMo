@@ -35,6 +35,7 @@
                     
                     <div class="text-center mt-3">
                         <p>Chưa có tài khoản? <a href="/DA_MaNguonMo/account/register">Đăng ký ngay</a></p>
+                        <p><a href="/DA_MaNguonMo/account/forgotPassword">Quên mật khẩu?</a></p>
                     </div>
                 </div>
             </div>

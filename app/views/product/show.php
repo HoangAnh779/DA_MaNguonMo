@@ -32,7 +32,7 @@
                                    min="1" 
                                    max="99">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-lg" style="margin-left: 25px; margin-top: 32px;">
                             <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
                         </button>
                     </form>

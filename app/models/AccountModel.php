@@ -16,7 +16,15 @@ class AccountModel
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':username', $username);
             $stmt->execute();
-            return $stmt->fetch(PDO::FETCH_OBJ);
+            
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            if ($result) {
+                // Ensure role is set
+                if (!isset($result->role)) {
+                    $result->role = 'user';
+                }
+            }
+            return $result;
         } catch(PDOException $e) {
             error_log("Database Error: " . $e->getMessage());
             return false;
@@ -35,6 +43,20 @@ class AccountModel
             $stmt->bindParam(':password', $password);
             $stmt->bindParam(':role', $role);
             
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updatePassword($username, $newPassword) 
+    {
+        try {
+            $query = "UPDATE " . $this->table_name . " SET password = :password WHERE username = :username";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':username', $username);
+            $stmt->bindParam(':password', $newPassword);
             return $stmt->execute();
         } catch(PDOException $e) {
             error_log("Database Error: " . $e->getMessage());
