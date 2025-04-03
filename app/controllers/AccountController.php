@@ -32,16 +32,12 @@ class AccountController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $username = $_POST['username'] ?? '';
-            $fullName = $_POST['fullname'] ?? '';
             $password = $_POST['password'] ?? '';
             $confirmPassword = $_POST['confirmpassword'] ?? '';
 
             $errors = [];
             if (empty($username)) {
                 $errors['username'] = "Vui lòng nhập username!";
-            }
-            if (empty($fullName)) {
-                $errors['fullname'] = "Vui lòng nhập fullname!";
             }
             if (empty($password)) {
                 $errors['password'] = "Vui lòng nhập password!";
@@ -59,11 +55,16 @@ class AccountController
             if (count($errors) > 0) {
                 include_once 'app/views/account/register.php';
             } else {
-                $password = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-                $result = $this->accountModel->save($username, $fullName, $password);
+                $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+                $result = $this->accountModel->save($username, $hashedPassword); // Remove redundant parameter
 
                 if ($result) {
+                    $_SESSION['success'] = "Đăng ký thành công!";
                     header('Location: /DA_MaNguonMo/account/login');
+                    exit;
+                } else {
+                    $errors['account'] = "Có lỗi xảy ra khi đăng ký!";
+                    include_once 'app/views/account/register.php';
                 }
             }
         }

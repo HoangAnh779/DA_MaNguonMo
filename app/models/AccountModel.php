@@ -34,11 +34,23 @@ class AccountModel
     public function save($username, $password, $role = 'user') 
     {
         try {
+            // Check if username already exists
+            $checkQuery = "SELECT id FROM " . $this->table_name . " WHERE username = :username";
+            $checkStmt = $this->conn->prepare($checkQuery);
+            $checkStmt->bindParam(':username', $username);
+            $checkStmt->execute();
+            
+            if ($checkStmt->fetch()) {
+                return false; // Username already exists
+            }
+
+            // Insert new account
             $query = "INSERT INTO " . $this->table_name . " (username, password, role) 
                      VALUES (:username, :password, :role)";
             
             $stmt = $this->conn->prepare($query);
             
+            // Bind parameters
             $stmt->bindParam(':username', $username);
             $stmt->bindParam(':password', $password);
             $stmt->bindParam(':role', $role);

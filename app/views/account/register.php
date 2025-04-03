@@ -1,39 +1,46 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<?php 
-if (isset($errors)) { 
-    echo "<ul>"; 
-    foreach ($errors as $err) { 
-        echo "<li class='text-danger'>$err</li>"; 
-    } 
-    echo "</ul>"; 
-} 
-?> 
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h3 class="text-center">Đăng ký tài khoản</h3>
+                </div>
+                <div class="card-body">
+                    <?php if (isset($errors) && !empty($errors)): ?>
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                <?php foreach ($errors as $error): ?>
+                                    <li><?php echo $error; ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
 
-<div class="card-body p-5 text-center"> 
-    <form class="user" action="/DA_MaNguonMo/account/save" method="post"> 
-        <div class="form-group row"> 
-            <div class="col-sm-6 mb-3 mb-sm-0"> 
-                <input type="text" class="form-control form-control-user" id="username" name="username" placeholder="username"> 
-            </div> 
-            <div class="col-sm-6"> 
-                <input type="text" class="form-control form-control-user" id="fullname" name="fullname" placeholder="fullname"> 
-            </div> 
-        </div> 
-        <div class="form-group row"> 
-            <div class="col-sm-6 mb-3 mb-sm-0"> 
-                <input type="password" class="form-control form-control-user" id="password" name="password" placeholder="password"> 
-            </div> 
-            <div class="col-sm-6"> 
-                <input type="password" class="form-control form-control-user" id="confirmpassword" name="confirmpassword" placeholder="confirmpassword"> 
-            </div> 
-        </div> 
-        <div class="form-group text-center"> 
-            <button class="btn btn-primary btn-icon-split p-3"> 
-                Register 
-            </button> 
-        </div> 
-    </form> 
-</div> 
+                    <form action="/DA_MaNguonMo/account/save" method="post">
+                        <div class="form-group mb-3">
+                            <label for="username">Tên đăng nhập:</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="password">Mật khẩu:</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="confirmpassword">Xác nhận mật khẩu:</label>
+                            <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p>Đã có tài khoản? <a href="/DA_MaNguonMo/account/login">Đăng nhập</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include 'app/views/shares/footer.php'; ?>
