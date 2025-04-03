@@ -1,83 +1,65 @@
 <?php include(__DIR__ . '/../shares/header.php'); ?>
 
-<h1>Sửa sản phẩm</h1>
-<form id="edit-product-form" enctype="multipart/form-data">
-    <input type="hidden" id="id" name="id">
-    <div class="form-group">
-        <label for="name">Tên sản phẩm:</label>
-        <input type="text" id="name" name="name" class="form-control" required>
-    </div>
-    <div class="form-group">
-        <label for="description">Mô tả:</label>
-        <textarea id="description" name="description" class="form-control" required></textarea>
-    </div>
-    <div class="form-group">
-        <label for="price">Giá:</label>
-        <input type="number" id="price" name="price" class="form-control" step="0.01" required>
-    </div>
-    <div class="form-group">
-        <label for="category_id">Danh mục:</label>
-        <select id="category_id" name="category_id" class="form-control" required>
-            <!-- Các danh mục sẽ được tải từ API và hiển thị tại đây -->
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="image">Hình ảnh:</label>
-        <input type="file" id="image" name="image" class="form-control">
-        <img id="current-image" src="" alt="Current Image" class="mt-2" style="max-width: 200px;">
-    </div>
-    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-</form>
-
-<a href="/DA_MaNguonMo/Product/list" class="btn btn-secondary mt-2">Quay lại danh sách sản phẩm</a>
-
-<?php include(__DIR__ . '/../shares/footer.php'); ?>
+<div class="container my-5">
+    <h1>Sửa sản phẩm</h1>
+    <form id="edit-product-form" method="POST" action="/DA_MaNguonMo/Product/update" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="<?= $editId ?>">
+        <div class="form-group">
+            <label for="name">Tên sản phẩm:</label>
+            <input type="text" id="name" name="name" class="form-control" value="<?= $product->name ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Mô tả:</label>
+            <textarea id="description" name="description" class="form-control" required><?= $product->description ?></textarea>
+        </div>
+        <div class="form-group">
+            <label for="price">Giá:</label>
+            <input type="number" id="price" name="price" class="form-control" value="<?= $product->price ?>" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="category_id">Danh mục:</label>
+            <select id="category_id" name="category_id" class="form-control" required>
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?= $category->id ?>" <?= $category->id == $product->category_id ? 'selected' : '' ?>>
+                        <?= $category->name ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="image">Hình ảnh:</label>
+            <input type="file" id="image" name="image" class="form-control">
+            <?php if ($product->image): ?>
+                <img src="/DA_MaNguonMo/<?= $product->image ?>" alt="Current Image" class="mt-2" style="max-width: 200px;">
+                <input type="hidden" name="existing_image" value="<?= $product->image ?>">
+            <?php endif; ?>
+        </div>
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="/DA_MaNguonMo/Product" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const productId = <?= $editId ?>;
-
-    fetch('/DA_MaNguonMo/api/category')
-        .then(response => response.json())
-        .then(data => {
-            const categorySelect = document.getElementById('category_id');
-            data.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.id;
-                option.textContent = category.name;
-                categorySelect.appendChild(option);
-            });
-
-            // Fetch product data after categories are loaded
-            fetch(`/DA_MaNguonMo/api/product/${productId}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('id').value = data.id;
-                    document.getElementById('name').value = data.name;
-                    document.getElementById('description').value = data.description;
-                    document.getElementById('price').value = data.price;
-                    document.getElementById('category_id').value = data.category_id;
-                    document.getElementById('current-image').src = `/DA_MaNguonMo/${data.image}`;
-                });
-        });
-
-    document.getElementById('edit-product-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const formData = new FormData(this);
-
-        fetch(`/DA_MaNguonMo/api/product/${formData.get('id')}`, {
-            method: 'PUT',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message === 'Product updated successfully') {
-                location.href = '/DA_MaNguonMo/Product';
-            } else {
-                alert('Cập nhật sản phẩm thất bại');
-            }
-        });
+document.getElementById('edit-product-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/DA_MaNguonMo/Product/update', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        window.location.href = '/DA_MaNguonMo/Product';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Không thể cập nhật sản phẩm');
     });
 });
 </script>
+
+<?php include(__DIR__ . '/../shares/footer.php'); ?>

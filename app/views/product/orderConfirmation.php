@@ -22,7 +22,7 @@
                         <p>Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để xác nhận đơn hàng.</p>
                     </div>
                     
-                    <div class="action-buttons">
+                    <div class="action-buttons mt-4">
                         <a href="/DA_MaNguonMo/Product" class="btn btn-primary">
                             <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
                         </a>
@@ -76,6 +76,47 @@
     background-color: #005229;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,104,55,0.2);
+}
+
+.btn-momo {
+    background-color: #ae2070;
+    border: none;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    flex: 1;
+    margin: 0;
+}
+
+.btn-momo:hover {
+    background-color: #8e1a5c;
+    transform: translateY(-2px);
+    color: white;
+    box-shadow: 0 5px 15px rgba(174, 32, 112, 0.3);
+}
+
+.momo-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    justify-content: center;
+}
+
+.action-buttons a {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
 }
 
 @keyframes scaleUp {

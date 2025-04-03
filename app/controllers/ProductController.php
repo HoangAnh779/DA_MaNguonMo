@@ -68,38 +68,51 @@ class ProductController
 
     public function edit($id) 
     {
-        AuthMiddleware::isAdmin(); // Chỉ admin mới được sửa sản phẩm
+        AuthMiddleware::isAdmin();
         $product = $this->productModel->getProductById($id);
         $categories = (new CategoryModel($this->db))->getCategories();
 
         if ($product) {
-            include 'app/views/product/edit.php';
+            // Pass the editId to the view
+            $editId = $id;
+            require 'app/views/product/edit.php';
         } else {
-            echo "Không thấy sản phẩm.";
+            $_SESSION['error'] = "Không tìm thấy sản phẩm";
+            header('Location: /DA_MaNguonMo/Product');
         }
     }
 
     public function update() 
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id = $_POST['id'];
-            $name = $_POST['name'];
-            $description = $_POST['description'];
-            $price = $_POST['price'];
-            $category_id = $_POST['category_id'];
+            try {
+                $id = $_POST['id'];
+                $name = $_POST['name'];
+                $description = $_POST['description'];
+                $price = $_POST['price'];
+                $category_id = $_POST['category_id'];
+                $existing_image = $_POST['existing_image'] ?? null;
 
-            if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-                $image = $this->uploadImage($_FILES['image']);
-            } else {
-                $image = $_POST['existing_image'];
-            }
+                // Handle image upload
+                $image = null;
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $image = $_FILES['image'];
+                } else {
+                    $image = $existing_image;
+                }
 
-            $edit = $this->productModel->updateProduct($id, $name, $description, $price, $category_id, $image);
+                $result = $this->productModel->updateProduct($id, $name, $description, $price, $category_id, $image);
 
-            if ($edit) {
-                header('Location: /DA_MaNguonMo/Product');
-            } else {
-                echo "Đã xảy ra lỗi khi lưu sản phẩm.";
+                if ($result) {
+                    header('Location: /DA_MaNguonMo/Product');
+                    exit;
+                } else {
+                    throw new Exception("Cập nhật thất bại");
+                }
+            } catch (Exception $e) {
+                http_response_code(400);
+                echo json_encode(['error' => $e->getMessage()]);
+                exit;
             }
         }
     }
@@ -239,7 +252,7 @@ class ProductController
 
                 $conn->beginTransaction();
 
-                // 1. Thêm vào bảng orders - chỉ với các trường có trong CSDL
+                // Insert into orders table
                 $sql = "INSERT INTO orders (name, phone, address, created_at) 
                        VALUES (:name, :phone, :address, NOW())";
                 
@@ -252,11 +265,12 @@ class ProductController
 
                 $orderId = $conn->lastInsertId();
 
-                // 2. Thêm vào bảng order_details
+                // Insert order details
                 $sql = "INSERT INTO order_details (order_id, product_id, quantity, price) 
                        VALUES (:order_id, :product_id, :quantity, :price)";
                 
                 $stmt = $conn->prepare($sql);
+                $total_amount = 0;
 
                 foreach ($_SESSION['cart'] as $item) {
                     $stmt->execute([
@@ -265,20 +279,23 @@ class ProductController
                         ':quantity' => $item['quantity'],
                         ':price' => $item['price']
                     ]);
+                    $total_amount += $item['price'] * $item['quantity'];
                 }
 
-                // Commit transaction
                 $conn->commit();
 
-                // Lưu order ID vào session
-                $_SESSION['last_order_id'] = $orderId;
-                $_SESSION['success'] = 'Đặt hàng thành công!';
+                // Store order info in session
+                $_SESSION['order_info'] = [
+                    'order_id' => $orderId,
+                    'total_amount' => $total_amount,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
                 
-                // Xóa giỏ hàng
+                // Clear cart
                 unset($_SESSION['cart']);
 
-                // Chuyển hướng đến trang xác nhận
-                header('Location: /DA_MaNguonMo/Product/orderConfirmation');
+                // Redirect to MomoPay
+                header('Location: /DA_MaNguonMo/Product/momoPayment');
                 exit();
 
             } catch (Exception $e) {
@@ -293,9 +310,20 @@ class ProductController
         }
     }
 
-    public function orderConfirmation() 
-    {
+    public function orderConfirmation() {
+        if (!isset($_SESSION['order_info']['order_id'])) {
+            header('Location: /DA_MaNguonMo/Product/cart');
+            exit();
+        }
         include 'app/views/product/orderConfirmation.php';
+    }
+
+    public function momoPayment() {
+        if (!isset($_SESSION['order_info'])) {
+            header('Location: /DA_MaNguonMo/Product/cart');
+            exit();
+        }
+        include 'app/views/product/momopay.php';
     }
 
     public function removeFromCart() {

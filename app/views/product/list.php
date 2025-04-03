@@ -19,11 +19,12 @@
             <div class="price-filter">
                 <select id="priceFilter" class="form-control" onchange="filterProducts()">
                     <option value="">Tất cả mức giá</option>
-                    <option value="0-50000">Dưới 50.000đ</option>
-                    <option value="50000-100000">50.000đ - 100.000đ</option>
-                    <option value="100000-200000">100.000đ - 200.000đ</option>
-                    <option value="200000-500000">200.000đ - 500.000đ</option>
-                    <option value="500000">Trên 500.000đ</option>
+                    <option value="0-20000">Dưới 20.000đ</option>
+                    <option value="20000-40000">20.000đ - 40.000đ</option>
+                    <option value="40000-60000">40.000đ - 60.000đ</option>
+                    <option value="60000-80000">60.000đ - 80.000đ</option>
+                    <option value="80000-100000">80.000đ - 100.000đ</option>
+                    <option value="100000">Trên 100.000đ</option>
                 </select>
             </div>
         </div>

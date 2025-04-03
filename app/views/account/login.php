@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card mt-5">
+            <div class="card mt-5" style="border-radius: 20px;">
                 <div class="card-header">
                     <h3 class="text-center">Đăng nhập</h3>
                 </div>
@@ -50,9 +50,11 @@
 }
 
 .card-header {
-    background-color: #006837;
+    background-color:rgb(255, 255, 255);
     color: white;
     padding: 20px;
+    border-top-left-radius: 25px !important;
+    border-top-right-radius: 25px !important;
 }
 
 .card-body {

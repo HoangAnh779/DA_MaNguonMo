@@ -77,6 +77,16 @@ if ($controllerName === 'ApiController' && isset($url[1])) {
 // Special routing for Admin controller
 if ($url[0] === 'Admin') {
     switch($url[1] ?? '') {
+        case 'order':
+            require_once 'app/controllers/AdminOrderController.php';
+            $controller = new AdminOrderController();
+            
+            if (isset($url[2]) && $url[2] === 'details') {
+                $controller->details($url[3]);
+            } else {
+                $controller->index();
+            }
+            exit;
         case 'user':
             require_once 'app/controllers/AdminUserController.php';
             $controller = new AdminUserController();
@@ -99,7 +109,12 @@ if ($url[0] === 'Admin') {
                 $controller->index();
             }
             exit;
-        // Add other admin routes here if needed
+        case 'statistics':
+            require_once 'app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->statistics();
+            exit;
+            break;
         default:
             die('Invalid admin route');
     }
@@ -180,6 +195,9 @@ if (method_exists($controller, $action)) {
                     break;
                 case 'orderConfirmation':
                     require_once 'app/views/product/orderConfirmation.php';
+                    break;
+                case 'momoPayment':
+                    require_once 'app/views/product/momopay.php';
                     break;
                 case 'updateCart':
                     $controller->updateCart();

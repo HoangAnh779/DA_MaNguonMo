@@ -7,7 +7,12 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sản phẩm</title>
+    <title>Phúc Long Coffee & Tea</title>
+    <!-- Add favicon -->
+    <link rel="icon" type="image/png" href="/DA_MaNguonMo/public/images/LogoPhucLong1.png">
+    <link rel="shortcut icon" type="image/png" href="/DA_MaNguonMo/public/images/LogoPhucLong1.png">
+    <!-- Add title image -->
+    <link rel="apple-touch-icon" href="/DA_MaNguonMo/public/images/LogoPhucLong1.png">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Thêm Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -45,7 +50,7 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
 
     /* Navbar styles */
     .navbar {
-        background-color: var(--primary-color) !important;
+        background-color: #f8f9fa !important;
         padding: 0.8rem 1rem;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
@@ -60,14 +65,14 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
     }
 
     .nav-link {
-        color: white !important;
+        color: black !important;
         font-weight: 500;
         padding: 0.8rem 1.2rem !important;
         transition: all 0.3s ease;
     }
 
     .nav-link:hover {
-        color: var(--secondary-color) !important;
+        color: #999998 !important;
         border-radius: 4px;
     }
 
@@ -315,16 +320,16 @@ include_once(__DIR__ . '/../../helpers/SessionHelper.php');
                 </li>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="/DA_MaNguonMo/Product/add">Thêm sản phẩm</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="/DA_MaNguonMo/Category/">Danh Mục</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/DA_MaNguonMo/Category/add">Thêm danh mục</a>
+                        <a class="nav-link" href="/DA_MaNguonMo/Admin/user">Quản lý người dùng</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/DA_MaNguonMo/Admin/user">Quản lý người dùng</a>
+                        <a class="nav-link" href="/DA_MaNguonMo/Admin/statistics">Thống kê</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/DA_MaNguonMo/Admin/order">Quản lý đơn hàng</a>
                     </li>
                 <?php endif; ?>
                 <li class="nav-item">

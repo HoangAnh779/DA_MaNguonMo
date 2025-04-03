@@ -30,7 +30,14 @@ class ProductModel
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':id', $id);
             $stmt->execute();
-            return $stmt->fetch(PDO::FETCH_OBJ);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            // Ensure the image path is complete
+            if ($result && $result->image) {
+                $result->image = ltrim($result->image, '/');
+            }
+            
+            return $result;
         } catch(PDOException $e) {
             error_log("Database Error: " . $e->getMessage());
             return false;
@@ -80,47 +87,45 @@ class ProductModel
         return false;
     }
 
-    public function updateProduct($id, $name, $description, $price, $category_id, $image) 
+    public function updateProduct($id, $name, $description, $price, $category_id, $image = null) 
     {
-        $errors = [];
-        if (empty($name)) {
-            $errors['name'] = 'Tên sản phẩm không được để trống';
-        }
-        if (empty($description)) {
-            $errors['description'] = 'Mô tả không được để trống';
-        }
-        if (!is_numeric($price) || $price < 0) {
-            $errors['price'] = 'Giá sản phẩm không hợp lệ';
-        }
-        if (count($errors) > 0) {
-            return $errors;
-        }
+        try {
+            // If there's a new image
+            if ($image && isset($image['tmp_name']) && !empty($image['tmp_name'])) {
+                $query = "UPDATE " . $this->table_name . " 
+                         SET name = :name, description = :description, 
+                             price = :price, category_id = :category_id, 
+                             image = :image 
+                         WHERE id = :id";
+                
+                $imagePath = 'uploads/' . uniqid() . '-' . basename($image['name']);
+                move_uploaded_file($image['tmp_name'], $imagePath);
+                
+            } else {
+                // If no new image, don't update the image field
+                $query = "UPDATE " . $this->table_name . " 
+                         SET name = :name, description = :description, 
+                             price = :price, category_id = :category_id 
+                         WHERE id = :id";
+            }
 
-        $imagePath = null;
-        if ($image && $image['tmp_name']) {
-            $imagePath = 'uploads/' . uniqid() . '-' . basename($image['name']);
-            move_uploaded_file($image['tmp_name'], $imagePath);
+            $stmt = $this->conn->prepare($query);
+            
+            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':name', $name);
+            $stmt->bindParam(':description', $description);
+            $stmt->bindParam(':price', $price);
+            $stmt->bindParam(':category_id', $category_id);
+            
+            if ($image && isset($image['tmp_name']) && !empty($image['tmp_name'])) {
+                $stmt->bindParam(':image', $imagePath);
+            }
+
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Update Product Error: " . $e->getMessage());
+            return false;
         }
-
-        $query = "UPDATE " . $this->table_name . " SET name=:name, description=:description, price=:price, category_id=:category_id, image=:image WHERE id=:id";
-        $stmt = $this->conn->prepare($query);
-
-        $name = htmlspecialchars(strip_tags($name));
-        $description = htmlspecialchars(strip_tags($description));
-        $price = htmlspecialchars(strip_tags($price));
-        $category_id = htmlspecialchars(strip_tags($category_id));
-
-        $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':price', $price);
-        $stmt->bindParam(':category_id', $category_id);
-        $stmt->bindParam(':image', $imagePath);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
     }
 
     public function deleteProduct($id) 
